@@ -25,15 +25,24 @@
   export let onContextMenuDay: (date: Moment, event: MouseEvent) => boolean;
   export let onContextMenuWeek: (date: Moment, event: MouseEvent) => boolean;
 
+  function getAdjustedToday(): Moment {
+    const now = window.moment();
+    // 凌晨4点之前算作前一天
+    if (now.hour() < 4) {
+      return now.clone().subtract(1, 'day');
+    }
+    return now;
+  }
+
   export function tick() {
-    today = window.moment();
+    today = getAdjustedToday();
   }
 
   function getToday(settings: ISettings) {
     configureGlobalMomentLocale(settings.localeOverride, settings.weekStart);
     dailyNotes.reindex();
     weeklyNotes.reindex();
-    return window.moment();
+    return getAdjustedToday();
   }
 
   // 1 minute heartbeat to keep `today` reflecting the current day
