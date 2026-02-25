@@ -4,6 +4,27 @@ This plugin for [Obsidian](https://obsidian.md/) creates a simple Calendar view 
 
 ![screenshot-full](https://raw.githubusercontent.com/liamcain/obsidian-calendar-plugin/master/images/screenshot-full.png)
 
+## Fork 修改说明
+
+本仓库是原 obsidian-calendar-plugin 的定制化分支，添加了以下特性：
+
+### 新增配置项
+
+- **表示当前时间的属性** (`currentTimeProperty`): 指定用于表示当前时间的 frontmatter 属性名称（如 `currentTime`）
+- **时间格式** (`timeFormat`): 指定时间的显示格式，默认为 `YYYY-MM-DD HH:mm:ss`
+
+### 自动时间更新
+
+创建新的 daily note 或 weekly note 时，插件会自动读取笔记的 frontmatter，找到配置的时间属性，并将其值设置为当前时间（遵循配置的格式）。
+
+### 凌晨时间调整
+
+调整了"今天"的判断逻辑：**凌晨 4 点之前视为前一天**。这对夜间工作的用户更加友好，使得夜间的日记会被归类到前一天。
+
+### 插件 ID 修改
+
+为避免与原版插件冲突，此 fork 将插件 ID 改为 `calendar-fork`，可以与原版插件共存。
+
 ## Usage
 
 After enabling the plugin in the settings menu, you should see the calendar view appear in the right sidebar.
