@@ -13,6 +13,8 @@ export function getDefaultSettings(
       weeklyNoteFolder: "",
       weeklyNoteFormat: "",
       weeklyNoteTemplate: "",
+      currentTimeProperty: "",
+      timeFormat: "YYYY-MM-DD HH:mm:ss",
     },
     overrides
   );

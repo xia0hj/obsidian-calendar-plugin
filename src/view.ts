@@ -269,6 +269,7 @@ export default class CalendarView extends ItemView {
       // File doesn't exist
       tryToCreateWeeklyNote(startOfWeek, inNewSplit, this.settings, (file) => {
         activeFile.setFile(file);
+        this.updateFrontmatterWithCurrentTime(file);
       });
       return;
     }
@@ -296,6 +297,7 @@ export default class CalendarView extends ItemView {
         this.settings,
         (dailyNote: TFile) => {
           activeFile.setFile(dailyNote);
+          this.updateFrontmatterWithCurrentTime(dailyNote);
         }
       );
       return;
@@ -309,5 +311,56 @@ export default class CalendarView extends ItemView {
     await leaf.openFile(existingFile, { active : true, mode });
 
     activeFile.setFile(existingFile);
+  }
+
+  private async updateFrontmatterWithCurrentTime(file: TFile): Promise<void> {
+    const { currentTimeProperty, timeFormat } = this.settings;
+
+    // 如果没有配置时间属性，则跳过
+    if (!currentTimeProperty) {
+      return;
+    }
+
+    try {
+      const content = await this.app.vault.read(file);
+      const { moment } = window;
+      const currentTime = moment().format(timeFormat);
+
+      // 处理有 frontmatter 的情况
+      const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n/);
+      let newContent = content;
+
+      if (frontmatterMatch) {
+        const fullFrontmatter = frontmatterMatch[0];
+        const frontmatterContent = frontmatterMatch[1];
+
+        // 检查属性是否已存在
+        const propertyRegex = new RegExp(`^${currentTimeProperty}:`, 'm');
+        let newFrontmatterContent = frontmatterContent;
+
+        if (propertyRegex.test(frontmatterContent)) {
+          // 替换现有属性
+          newFrontmatterContent = frontmatterContent.replace(
+            propertyRegex,
+            `${currentTimeProperty}: ${currentTime}`
+          );
+        } else {
+          // 添加新属性
+          newFrontmatterContent = frontmatterContent + `\n${currentTimeProperty}: ${currentTime}`;
+        }
+
+        newContent = content.replace(
+          fullFrontmatter,
+          `---\n${newFrontmatterContent}\n---\n`
+        );
+      } else {
+        // 没有 frontmatter，创建一个
+        newContent = `---\n${currentTimeProperty}: ${currentTime}\n---\n${content}`;
+      }
+
+      await this.app.vault.modify(file, newContent);
+    } catch (error) {
+      console.error('Failed to update frontmatter:', error);
+    }
   }
 }

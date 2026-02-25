@@ -18,6 +18,8 @@ export interface ISettings {
   weeklyNoteFolder: string;
 
   localeOverride: ILocaleOverride;
+  currentTimeProperty: string;
+  timeFormat: string;
 }
 
 const weekdays = [
@@ -42,6 +44,8 @@ export const defaultSettings = Object.freeze({
   weeklyNoteFolder: "",
 
   localeOverride: "system-default",
+  currentTimeProperty: "",
+  timeFormat: "YYYY-MM-DD HH:mm:ss",
 });
 
 export function appHasPeriodicNotesPluginLoaded(): boolean {
@@ -103,6 +107,13 @@ export class CalendarSettingsTab extends PluginSettingTab {
       text: "Advanced Settings",
     });
     this.addLocaleOverrideSetting();
+
+    
+    this.containerEl.createEl("h3", {
+      text: "Fork New Settings",
+    });
+    this.addCurrentTimePropertySetting();
+    this.addTimeFormatSetting();
   }
 
   addDotThresholdSetting(): void {
@@ -209,6 +220,36 @@ export class CalendarSettingsTab extends PluginSettingTab {
         textfield.setValue(this.plugin.options.weeklyNoteFolder);
         textfield.onChange(async (value) => {
           this.plugin.writeOptions(() => ({ weeklyNoteFolder: value }));
+        });
+      });
+  }
+
+  addCurrentTimePropertySetting(): void {
+    new Setting(this.containerEl)
+      .setName("表示当前时间的属性")
+      .setDesc("指定用于表示当前时间的属性名称")
+      .addText((textfield) => {
+        textfield.setValue(this.plugin.options.currentTimeProperty);
+        textfield.setPlaceholder("时间属性名称");
+        textfield.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({
+            currentTimeProperty: value,
+          }));
+        });
+      });
+  }
+
+  addTimeFormatSetting(): void {
+    new Setting(this.containerEl)
+      .setName("时间格式")
+      .setDesc("指定时间的显示格式")
+      .addText((textfield) => {
+        textfield.setValue(this.plugin.options.timeFormat);
+        textfield.setPlaceholder("YYYY-MM-DD HH:mm:ss");
+        textfield.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({
+            timeFormat: value !== "" ? value : "YYYY-MM-DD HH:mm:ss",
+          }));
         });
       });
   }
